@@ -1,0 +1,81 @@
+@font-face {
+    font-family: "KanitLight";
+    src: url("/fonts/Kanit/Kanit-ExtraLight.ttf") format("truetype");
+    font-weight: normal;
+    font-style: normal;    
+}
+
+body{
+    font-family: "KanitLight", Arial, Helvetica, sans-serif;
+    background-color: rgb(255, 255, 255);
+    font-size: 24px;
+}
+form {
+    text-align: center;
+}
+h1 {
+    color: hsl(0, 79%, 28%);
+    margin: 20px;
+    padding: 20px;
+    text-align: center;
+}
+
+img {
+    display: block;
+    margin: 0 auto;
+    margin-bottom: 20px;
+    max-width: 200px;
+    height: auto;
+}   
+.login-div {
+    padding: 15px;
+    display: inline-block;
+
+}
+.login-div input{
+    display: block;
+    margin-bottom: 27px;
+    
+}
+
+button {
+    background-color: hsl(0, 79%, 28%);
+    color: white;
+}
+button:hover {
+    background-color: hsl(0, 79%, 38%);
+
+}
+.btn-trash {
+    background-color: hsl(0, 79%, 48%);
+    color: white;
+}
+.amount {
+    font-weight: bold;
+    margin: 0 10px;
+}
+
+fieldset {
+    border: 2px solid hsl(0, 79%, 28%);
+    border-radius: 12px;
+    padding: 20px;
+    margin: 0 auto;
+    width: fit-content;
+    background-color: white;
+    box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.1);
+    text-align: center;
+
+}
+.task-list {
+    list-style-type: none;
+    padding-left: 10px;
+    margin: 0 auto
+}
+.task-item {
+    margin-bottom: 10px;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    background-color: #f9f9f9;
+    transition: background-color 0.3s, box-shadow 0.3s;
+}
