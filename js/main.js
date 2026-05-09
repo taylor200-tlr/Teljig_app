@@ -102,48 +102,59 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     // MENTÉS GOMB LOGIKÁJA
-    const saveButton = document.getElementById('saveButton');
+saveButton.addEventListener('click', () => {
+    const adatok = [];
+    let vegosszeg = 0;
 
-    saveButton.addEventListener('click', () => {
-        const adatok = [];
-        let vegosszeg = 0;
+    document.querySelectorAll('.activity').forEach(activityDiv => {
+        const nev = activityDiv.querySelector('h3').textContent;
+        const mennyiseg = parseInt(activityDiv.querySelector('.quantity').textContent) || 0;
+        const ar = parseInt(activityDiv.dataset.price);
 
-        // Végigmegyünk az ÖSSZES tevékenységen (a nullásokon is!)
-        document.querySelectorAll('.activity').forEach(activityDiv => {
-            const nev = activityDiv.querySelector('h3').textContent;
-            const mennyiseg = parseInt(activityDiv.querySelector('.quantity').textContent) || 0;
-            const ar = parseInt(activityDiv.dataset.price);
-
-            adatok.push({
-                tevekenyseg: nev,
-                mennyiseg: mennyiseg
-            });
-
-            vegosszeg += ar * mennyiseg;
+        adatok.push({
+            tevekenyseg: nev,
+            mennyiseg: mennyiseg
         });
-
-        const googleUrl = "https://script.google.com/macros/s/AKfycbyLxB8RvI2CVQqRS0BJw2JIanD1taua0EcpVfnz24yisjuWXQOR5xOmAxxeSQJgobY6/exec";
-
-        saveButton.disabled = true;
-        saveButton.textContent = "Mentés...";
-
-        fetch(googleUrl, {
-            method: 'POST',
-            mode: 'no-cors',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ tetelek: adatok, osszesen: vegosszeg })
-        })
-            .then(() => {
-                alert("✅ Adatok elmentve a táblázatba!");
-                document.querySelectorAll('.quantity').forEach(span => span.textContent = '0');
-                updateTotalPrice();
-            })
-            .catch(err => alert("Hiba történt: " + err))
-            .finally(() => {
-                saveButton.disabled = false;
-                saveButton.textContent = "Mentés";
-            });
+        
+        vegosszeg += ar * mennyiseg;
     });
+
+    if (adatok.length === 0) return alert("Nincs mit menteni!");
+
+    const googleUrl = "IDE_MÁSOLD_BE_A_SCRIPT_URL_EDET";
+
+    // GOMB ÁLLAPOT VÁLTOZTATÁSA
+    saveButton.disabled = true;
+    saveButton.textContent = "Mentés...";
+    saveButton.style.opacity = "0.5"; // Vizuális visszajelzés
+
+    fetch(googleUrl, {
+        method: 'POST',
+        mode: 'no-cors',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ tetelek: adatok, osszesen: vegosszeg })
+    })
+    .then(() => {
+        // Mivel a no-cors nem ad valódi választ, ez azonnal lefut küldés után
+        alert("✅ Adatok elküldve!");
+        
+        // Visszaállítjuk a felületet
+        document.querySelectorAll('.quantity').forEach(span => span.textContent = '0');
+        updateTotalPrice();
+    })
+    .catch(err => {
+        console.error(err);
+        alert("Hiba történt!");
+    })
+    .finally(() => {
+        // Kényszerített visszaállítás 1 másodperc múlva, hogy biztosan látszódjon a gomb
+        setTimeout(() => {
+            saveButton.disabled = false;
+            saveButton.textContent = "Mentés";
+            saveButton.style.opacity = "1";
+        }, 1000);
+    });
+});
     const deleteLastButton = document.getElementById('deleteLastButton');
 
     deleteLastButton.addEventListener('click', () => {
