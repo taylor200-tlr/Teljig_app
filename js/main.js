@@ -2,20 +2,18 @@ document.addEventListener('DOMContentLoaded', () => {
     // 2D-s tömb a tevékenységek és áraik tárolására
     const activities = [
         ['LHM csere', 8500],
-        ['LHM rollout', 12750],
+        ['LHM rollout / PÜK', 12750],
         ['KMSZ csere', 2210],
         ['Kötőelem', 2300],
-        ['HMKE', 17000],
-        ['Ablak fel', 5100],
+        ['HMKE / Mintavétel', 17000],
+        ['Kisablak / HA / Készülék', 5100],
         ['Tábla csere', 1700],
         ['Plombálás', 5500],
+        ['Műszaki', 7200],
         ['Kikapcsolás', 22000],
-        ['Mágneskapcsoló', 5100],
         ['EJKV', 12750],
         ['TJKV kicsi', 25500],
-        ['TJKV nagy', 72250],
-        ['PÜK cím', 12750],
-        ['Mintavétel', 17000],        
+        ['TJKV nagy', 72250],       
     ];
 
     const container = document.getElementById('activitiesContainer');
