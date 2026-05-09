@@ -107,61 +107,42 @@ document.addEventListener('DOMContentLoaded', () => {
     saveButton.addEventListener('click', () => {
         const adatok = [];
         let vegosszeg = 0;
-        const most = new Date();
-        const datumString = most.toLocaleDateString('hu-HU');
 
-        // Adatok összegyűjtése
+        // Végigmegyünk az ÖSSZES tevékenységen (a nullásokon is!)
         document.querySelectorAll('.activity').forEach(activityDiv => {
             const nev = activityDiv.querySelector('h3').textContent;
-            const mennyiseg = parseInt(activityDiv.querySelector('.quantity').textContent);
+            const mennyiseg = parseInt(activityDiv.querySelector('.quantity').textContent) || 0;
             const ar = parseInt(activityDiv.dataset.price);
 
-            if (mennyiseg > 0) {
-                adatok.push({
-                    datum: datumString,
-                    tevekenyseg: nev,
-                    mennyiseg: mennyiseg,
-                    ar: ar,
-                    reszosszeg: ar * mennyiseg
-                });
-                vegosszeg += ar * mennyiseg;
-            }
+            adatok.push({
+                tevekenyseg: nev,
+                mennyiseg: mennyiseg
+            });
+
+            vegosszeg += ar * mennyiseg;
         });
 
-        if (adatok.length === 0) {
-            alert("Nincs mit menteni!");
-            return;
-        }
+        const googleUrl = "https://script.google.com/macros/s/AKfycbyLxB8RvI2CVQqRS0BJw2JIanD1taua0EcpVfnz24yisjuWXQOR5xOmAxxeSQJgobY6/exec";
 
-        // CSV tartalom összeállítása (Dátum, Tevékenység, Mennyiség, Ár, Összeg)
-        let csvContent = "\uFEFF"; // UTF-8 BOM a magyar ékezetek miatt
-        csvContent += "Dátum;Tevékenység;Mennyiség;Egységár;Részösszeg\n";
+        saveButton.disabled = true;
+        saveButton.textContent = "Mentés...";
 
-        adatok.forEach(sor => {
-            csvContent += `${sor.datum};${sor.tevekenyseg};${sor.mennyiseg};${sor.ar};${sor.reszosszeg}\n`;
-        });
-        csvContent += `;;;ÖSSZESEN:;${vegosszeg}\n`;
-
-        // Fájl létrehozása és letöltése
-        const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-        const link = document.createElement("a");
-        const url = URL.createObjectURL(blob);
-
-        // Fájlnév generálása (pl: munka_2026-05-09.csv)
-        const fajlNev = `munka_${most.toISOString().split('T')[0]}.csv`;
-
-        link.setAttribute("href", url);
-        link.setAttribute("download", fajlNev);
-        link.style.visibility = 'hidden';
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-
-        alert(`✅ Fájl elkészült: ${fajlNev}\nNézd meg a Letöltések mappában!`);
-
-        // Nullázás
-        document.querySelectorAll('.quantity').forEach(span => span.textContent = '0');
-        updateTotalPrice();
+        fetch(googleUrl, {
+            method: 'POST',
+            mode: 'no-cors',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ tetelek: adatok, osszesen: vegosszeg })
+        })
+            .then(() => {
+                alert("✅ Adatok elmentve a táblázatba!");
+                document.querySelectorAll('.quantity').forEach(span => span.textContent = '0');
+                updateTotalPrice();
+            })
+            .catch(err => alert("Hiba történt: " + err))
+            .finally(() => {
+                saveButton.disabled = false;
+                saveButton.textContent = "Mentés";
+            });
     });
     const deleteLastButton = document.getElementById('deleteLastButton');
 
@@ -181,3 +162,32 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 });
+function doPost(e) {
+    var ss = SpreadsheetApp.getActiveSpreadsheet();
+    var sheet = ss.getSheets()[0];
+    var data = JSON.parse(e.postData.contents);
+
+    var most = new Date();
+    var datum = Utilities.formatDate(most, "GMT+1", "yyyy-MM-dd");
+    var ido = Utilities.formatDate(most, "GMT+1", "HH:mm:ss");
+
+    // Összeállítjuk a sort: [Dátum, Idő, ...tevékenységek értékei..., Végösszeg]
+    // Fontos: Itt a sorrendnek egyeznie kell a táblázat fejlécével!
+    var ujSor = [
+        datum,
+        ido
+    ];
+
+    // Sorban hozzáadjuk a mennyiségeket (a 0-t is!)
+    data.tetelek.forEach(function (t) {
+        ujSor.push(t.mennyiseg);
+    });
+
+    // A legvégére odatesszük a napi összkeresetet
+    ujSor.push(data.osszesen);
+
+    sheet.appendRow(ujSor);
+
+    return ContentService.createTextOutput(JSON.stringify({ "result": "success" }))
+        .setMimeType(ContentService.MimeType.JSON);
+}
