@@ -107,8 +107,10 @@ document.addEventListener('DOMContentLoaded', () => {
     saveButton.addEventListener('click', () => {
         const adatok = [];
         let vegosszeg = 0;
+        const most = new Date();
+        const datumString = most.toLocaleDateString('hu-HU');
 
-        // Összegyűjtjük azokat a tevékenységeket, amiknél a mennyiség > 0
+        // Adatok összegyűjtése
         document.querySelectorAll('.activity').forEach(activityDiv => {
             const nev = activityDiv.querySelector('h3').textContent;
             const mennyiseg = parseInt(activityDiv.querySelector('.quantity').textContent);
@@ -116,6 +118,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
             if (mennyiseg > 0) {
                 adatok.push({
+                    datum: datumString,
                     tevekenyseg: nev,
                     mennyiseg: mennyiseg,
                     ar: ar,
@@ -125,35 +128,40 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
 
-        // Ha semmit nem választottál ki, ne küldjünk üres adatot
         if (adatok.length === 0) {
-            alert("Nincs mit menteni! Válassz ki legalább egy tevékenységet.");
+            alert("Nincs mit menteni!");
             return;
         }
 
-        // Adatok küldése a szervernek
-        fetch('http://localhost:3000/api/mentes', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-                tetelek: adatok,
-                osszesen: vegosszeg,
-                datum: new Date()
-            })
-        })
-            .then(res => res.json())
-            .then(valasz => {
-                alert("✅ Sikeres mentés az adatbázisba!");
-                // Mentés után lenullázhatjuk a mezőket
-                document.querySelectorAll('.quantity').forEach(span => span.textContent = '0');
-                updateTotalPrice();
-            })
-            .catch(err => {
-                console.error("Hiba a mentés során:", err);
-                alert("❌ Hiba: Nem sikerült a mentés. Fut a szervered?");
-            });
+        // CSV tartalom összeállítása (Dátum, Tevékenység, Mennyiség, Ár, Összeg)
+        let csvContent = "\uFEFF"; // UTF-8 BOM a magyar ékezetek miatt
+        csvContent += "Dátum;Tevékenység;Mennyiség;Egységár;Részösszeg\n";
+
+        adatok.forEach(sor => {
+            csvContent += `${sor.datum};${sor.tevekenyseg};${sor.mennyiseg};${sor.ar};${sor.reszosszeg}\n`;
+        });
+        csvContent += `;;;ÖSSZESEN:;${vegosszeg}\n`;
+
+        // Fájl létrehozása és letöltése
+        const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+        const link = document.createElement("a");
+        const url = URL.createObjectURL(blob);
+
+        // Fájlnév generálása (pl: munka_2026-05-09.csv)
+        const fajlNev = `munka_${most.toISOString().split('T')[0]}.csv`;
+
+        link.setAttribute("href", url);
+        link.setAttribute("download", fajlNev);
+        link.style.visibility = 'hidden';
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+
+        alert(`✅ Fájl elkészült: ${fajlNev}\nNézd meg a Letöltések mappában!`);
+
+        // Nullázás
+        document.querySelectorAll('.quantity').forEach(span => span.textContent = '0');
+        updateTotalPrice();
     });
     const deleteLastButton = document.getElementById('deleteLastButton');
 
