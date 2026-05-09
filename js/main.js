@@ -102,59 +102,62 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     // MENTÉS GOMB LOGIKÁJA
-saveButton.addEventListener('click', () => {
-    const adatok = [];
-    let vegosszeg = 0;
+    saveButton.addEventListener('click', () => {
+        const adatok = [];
+        let vegosszeg = 0;
 
-    document.querySelectorAll('.activity').forEach(activityDiv => {
-        const nev = activityDiv.querySelector('h3').textContent;
-        const mennyiseg = parseInt(activityDiv.querySelector('.quantity').textContent) || 0;
-        const ar = parseInt(activityDiv.dataset.price);
+        // Adatok összegyűjtése (a nullásokkal együtt)
+        document.querySelectorAll('.activity').forEach(activityDiv => {
+            const nev = activityDiv.querySelector('h3').textContent;
+            const mennyiseg = parseInt(activityDiv.querySelector('.quantity').textContent) || 0;
+            const ar = parseInt(activityDiv.dataset.price);
 
-        adatok.push({
-            tevekenyseg: nev,
-            mennyiseg: mennyiseg
+            adatok.push({
+                tevekenyseg: nev,
+                mennyiseg: mennyiseg
+            });
+
+            vegosszeg += ar * mennyiseg;
         });
-        
-        vegosszeg += ar * mennyiseg;
+
+        if (adatok.length === 0) return alert("Nincs mit menteni!");
+
+        const googleUrl = "IDE_MÁSOLD_BE_A_SCRIPT_URL_EDET";
+
+        // --- VIZUÁLIS VISSZAJELZÉS INDÍTÁSA ---
+        saveButton.disabled = true;       // Kattintás letiltása
+        saveButton.style.opacity = "0.3"; // Erős elhalványítás
+        saveButton.style.cursor = "wait"; // Homokóra kurzor (gépen látszik)
+
+        fetch(googleUrl, {
+            method: 'POST',
+            mode: 'no-cors',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ tetelek: adatok, osszesen: vegosszeg })
+        })
+            .then(() => {
+                // Sikeres "küldés" után (no-cors esetén ez szinte azonnali)
+                console.log("Adat elküldve a Google-nek");
+            })
+            .catch(err => {
+                console.error("Hiba:", err);
+                alert("Hiba történt a küldés során!");
+            })
+            .finally(() => {
+                // Várunk 1.5 másodpercet, hogy a felhasználó lássa: történt valami,
+                // majd visszaállítunk mindent az eredeti állapotra.
+                setTimeout(() => {
+                    saveButton.disabled = false;
+                    saveButton.style.opacity = "1";
+                    saveButton.style.cursor = "pointer";
+
+                    // Értesítés és nullázás
+                    alert("✅ Mentés sikeres!");
+                    document.querySelectorAll('.quantity').forEach(span => span.textContent = '0');
+                    updateTotalPrice();
+                }, 1500);
+            });
     });
-
-    if (adatok.length === 0) return alert("Nincs mit menteni!");
-
-    const googleUrl = "IDE_MÁSOLD_BE_A_SCRIPT_URL_EDET";
-
-    // GOMB ÁLLAPOT VÁLTOZTATÁSA
-    saveButton.disabled = true;
-    saveButton.textContent = "Mentés...";
-    saveButton.style.opacity = "0.5"; // Vizuális visszajelzés
-
-    fetch(googleUrl, {
-        method: 'POST',
-        mode: 'no-cors',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ tetelek: adatok, osszesen: vegosszeg })
-    })
-    .then(() => {
-        // Mivel a no-cors nem ad valódi választ, ez azonnal lefut küldés után
-        alert("✅ Adatok elküldve!");
-        
-        // Visszaállítjuk a felületet
-        document.querySelectorAll('.quantity').forEach(span => span.textContent = '0');
-        updateTotalPrice();
-    })
-    .catch(err => {
-        console.error(err);
-        alert("Hiba történt!");
-    })
-    .finally(() => {
-        // Kényszerített visszaállítás 1 másodperc múlva, hogy biztosan látszódjon a gomb
-        setTimeout(() => {
-            saveButton.disabled = false;
-            saveButton.textContent = "Mentés";
-            saveButton.style.opacity = "1";
-        }, 1000);
-    });
-});
     const deleteLastButton = document.getElementById('deleteLastButton');
 
     deleteLastButton.addEventListener('click', () => {
