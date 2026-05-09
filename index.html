@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="hu">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no">
@@ -9,18 +10,32 @@
     <link rel="stylesheet" href="css/style-worksheet.css">
     <title>Teljesítési igazolás</title>
 </head>
+
 <body>
 
     <h1>Mennyit kerestem ma</h1>
 
     <div id="activitiesContainer">
-        </div>
-
-    <div id="totalPrice">
-        Összesen: 0 Ft
     </div>
+
+    <div class="footer-container">
+    <div class="action-buttons">
+        <!-- Az első 3 gomb -->
+        <div class="main-actions">
+            <button id="saveButton" class="square-btn" title="Mentés">💾</button>
+            <button id="resetButton" class="square-btn" title="Visszaállítás">🔄</button>
+            <button id="statsButton" class="square-btn" title="Statisztika">📊</button>
+        </div>
+        
+        <!-- A 4. gomb, ami távolabb van -->
+        <button id="deleteLastButton" class="square-btn danger-btn" title="Utolsó mentés törlése">🗑️</button>
+    </div>
+
+    <div id="totalPrice">Összesen: 0 Ft</div>
+</div>
 
     <script src="js/main.js"></script>
 
 </body>
+
 </html>

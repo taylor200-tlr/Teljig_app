@@ -13,7 +13,7 @@ document.addEventListener('DOMContentLoaded', () => {
         ['Kikapcsolás', 22000],
         ['EJKV', 12750],
         ['TJKV kicsi', 25500],
-        ['TJKV nagy', 72250],       
+        ['TJKV nagy', 72250],
     ];
 
     const container = document.getElementById('activitiesContainer');
@@ -49,7 +49,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (event.target.classList.contains('decrease') || event.target.classList.contains('increase')) {
             const activityDiv = event.target.closest('.activity');
             const quantitySpan = activityDiv.querySelector('.quantity');
-            
+
             let currentQuantity = parseInt(quantitySpan.textContent);
 
             if (event.target.classList.contains('increase')) {
@@ -57,7 +57,7 @@ document.addEventListener('DOMContentLoaded', () => {
             } else if (event.target.classList.contains('decrease') && currentQuantity > 0) {
                 currentQuantity--;
             }
-            
+
             quantitySpan.textContent = currentQuantity;
             updateTotalPrice();
         }
@@ -66,18 +66,58 @@ document.addEventListener('DOMContentLoaded', () => {
     // Összesített ár frissítése
     function updateTotalPrice() {
         let totalPrice = 0;
-        
+
         document.querySelectorAll('.activity').forEach(activityDiv => {
             const price = parseInt(activityDiv.dataset.price);
             const quantity = parseInt(activityDiv.querySelector('.quantity').textContent);
-            
+
             totalPrice += price * quantity;
         });
-        
+
         const formattedPrice = totalPrice.toLocaleString('hu-HU'); // 'hu-HU' a magyar nyelvhez
         totalPriceElement.textContent = `Összesen: ${formattedPrice} Ft`;
     }
 
     // Az első renderelés utáni kezdeti ár beállítása
     updateTotalPrice();
+
+    // Reset gomb eseménykezelője
+    const resetButton = document.getElementById('resetButton');
+
+    resetButton.addEventListener('click', () => {
+        if (confirm("Biztosan törölni szeretnéd a jelenlegi kiválasztást?")) {
+            // Minden darabszámot nullára állítunk
+            document.querySelectorAll('.quantity').forEach(span => {
+                span.textContent = '0';
+            });
+            // Frissítjük az összesített árat
+            updateTotalPrice();
+        }
+    });
+
+    // Statisztika gomb (egyelőre csak egy üzenet, de ide jöhet a szűrés logikája)
+    const statsButton = document.getElementById('statsButton');
+    statsButton.addEventListener('click', () => {
+        alert("Itt nyílhatna meg a naptár alapú szűrő felület!");
+    });
+
+    // A mentés gomb azonosítója ugyanaz maradt (saveButton), 
+    // így a korábbi mentési logikád változatlanul működik vele.
+    const deleteLastButton = document.getElementById('deleteLastButton');
+
+    deleteLastButton.addEventListener('click', () => {
+        if (confirm("Biztosan törölni szeretnéd az UTOLSÓ mentett bejegyzést az adatbázisból?")) {
+            fetch('http://localhost:3000/api/utolso-torles', {
+                method: 'DELETE' // DELETE metódust használunk a törléshez
+            })
+                .then(res => res.json())
+                .then(valasz => {
+                    alert(valasz.message);
+                })
+                .catch(err => {
+                    console.error("Hiba:", err);
+                    alert("Nem sikerült a törlés.");
+                });
+        }
+    });
 });
