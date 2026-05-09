@@ -101,8 +101,60 @@ document.addEventListener('DOMContentLoaded', () => {
         alert("Itt nyílhatna meg a naptár alapú szűrő felület!");
     });
 
-    // A mentés gomb azonosítója ugyanaz maradt (saveButton), 
-    // így a korábbi mentési logikád változatlanul működik vele.
+    // MENTÉS GOMB LOGIKÁJA
+    const saveButton = document.getElementById('saveButton');
+
+    saveButton.addEventListener('click', () => {
+        const adatok = [];
+        let vegosszeg = 0;
+
+        // Összegyűjtjük azokat a tevékenységeket, amiknél a mennyiség > 0
+        document.querySelectorAll('.activity').forEach(activityDiv => {
+            const nev = activityDiv.querySelector('h3').textContent;
+            const mennyiseg = parseInt(activityDiv.querySelector('.quantity').textContent);
+            const ar = parseInt(activityDiv.dataset.price);
+
+            if (mennyiseg > 0) {
+                adatok.push({
+                    tevekenyseg: nev,
+                    mennyiseg: mennyiseg,
+                    ar: ar,
+                    reszosszeg: ar * mennyiseg
+                });
+                vegosszeg += ar * mennyiseg;
+            }
+        });
+
+        // Ha semmit nem választottál ki, ne küldjünk üres adatot
+        if (adatok.length === 0) {
+            alert("Nincs mit menteni! Válassz ki legalább egy tevékenységet.");
+            return;
+        }
+
+        // Adatok küldése a szervernek
+        fetch('http://localhost:3000/api/mentes', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                tetelek: adatok,
+                osszesen: vegosszeg,
+                datum: new Date()
+            })
+        })
+            .then(res => res.json())
+            .then(valasz => {
+                alert("✅ Sikeres mentés az adatbázisba!");
+                // Mentés után lenullázhatjuk a mezőket
+                document.querySelectorAll('.quantity').forEach(span => span.textContent = '0');
+                updateTotalPrice();
+            })
+            .catch(err => {
+                console.error("Hiba a mentés során:", err);
+                alert("❌ Hiba: Nem sikerült a mentés. Fut a szervered?");
+            });
+    });
     const deleteLastButton = document.getElementById('deleteLastButton');
 
     deleteLastButton.addEventListener('click', () => {
