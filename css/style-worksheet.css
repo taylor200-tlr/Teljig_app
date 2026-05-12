@@ -1,124 +1,132 @@
-        body {
-            font-family: "KanitLight", Arial, Helvetica, sans-serif;
-            max-width: 600px;
-            margin: 20px auto;
-        }
+body {
+    font-family: 'Montserrat', sans-serif;
+    /* Az új betűtípus */
+    max-width: 600px;
+    margin: 0 auto;
+    padding: 15px;
+    background-color: #f4f7f6;
+    color: #2c3e50;
+    /* Sötétszürke, profibb mint a sima fekete */
+}
 
-        .activity {
-            border-bottom: 1px solid #ccc;
-            padding: 10px;
-            margin-bottom: 0px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-        }
+h1 {
+    font-weight: 800;
+    /* Extra vastag cím */
+    text-transform: uppercase;
+    /* Csupa nagybetű a komolyabb hatásért */
+    letter-spacing: 1px;
+    text-align: center;
+    padding-bottom: 15px;
+    border-bottom: #27ae60 3px solid;
+    /* A zöld színed köszönjön vissza itt is */
+    font-size: 1.3rem;
+}
 
-        .controls {
-            display: flex;
-            align-items: center;
-        }
+h3 {
+    font-weight: 400;
+    /* A tevékenység neve legyen közepesen vékony */
+    font-size: 1rem;
+    margin: 0;
+}
 
-        .controls button {
-            font-size: 1.5em;
-            font-weight: bold;
-            width: 40px;
-            height: 40px;
-            cursor: pointer;
-            background-color: #f44336;
-            color: white;
-            border: none;
-            border-radius: 5px;
-        }
+.activity {
+    background: white;
+    margin-bottom: 5px;
+    padding: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-radius: 8px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+}
 
-        .quantity {
-            font-size: 1.2em;
-            margin: 0 10px;
-            width: 30px;
-            text-align: center;
-        }
+.controls {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
 
-        h3 {
-            margin: 0;
-        }
+.controls button {
+    font-size: 1.2em;
+    width: 35px;
+    height: 35px;
+    cursor: pointer;
+    background-color: #f44336;
+    color: white;
+    border: none;
+    border-radius: 5px;
+}
 
-        h1 {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            text-align: center;
-            margin-bottom: 20px;
-            border-bottom: #ccc 2px solid;
-        }
+.quantity {
+    font-size: 1.2em;
+    font-weight: bold;
+    min-width: 25px;
+    text-align: center;
+    font-family: 'Montserrat', sans-serif;
+    font-weight: 700;
+    font-size: 1.4em;
+}
 
-        #totalPrice {
-            font-weight: bold;
-            font-size: 1.5em;
-            margin-top: 20px;
-            margin-right: 20px;
-            text-align: right;
-        }
+/* Új Összesítő elrendezés */
+.total-container {
+    margin: 20px 0;
+    padding: 15px;
+    background: #fff;
+    border-radius: 10px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border: 2px solid #27ae60;
+}
 
-        .footer-container {
-            display: flex;
-            align-items: center;
-            /* Függőlegesen középre igazít */
-            justify-content: space-between;
-            /* Szétnyomja a két szélső elemet */
-            margin-top: 10px;
-            padding-top: 10px;
+.total-label {
+    font-weight: 400;
+    text-transform: uppercase;
+    font-size: 0.8rem;
+    letter-spacing: 1px;
+}
 
-        }
+.total-amount {
+    font-size: 1.4rem;
+    font-weight: 800;
+    color: #27ae60;
+    font-family: 'Montserrat', sans-serif;
+    font-weight: 800; /* Az összeg legyen a legvastagabb */
+    font-size: 1.6rem; 
+    color: #27ae60;
+}
 
-        .action-buttons {
-            display: flex;
-            align-items: center;
-            gap: 30px;
-            /* Ez a távolság a 3-as csoport és a kuka között */
-        }
+/* Gombok 3 + 1 elosztása */
+.button-row {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 15px;
+}
 
-        .square-btn {
-            width: 45px;
-            height: 45px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.4em;
-            cursor: pointer;
-            background-color: #f8f9fa;
-            border: 1px solid #ddd;
-            border-radius: 8px;
-            /* Kicsit lekerekített négyzet */
-            transition: background-color 0.2s, transform 0.1s;
-        }
+.left-buttons {
+    display: flex;
+    gap: 10px;
+}
 
-        .square-btn:hover {
-            background-color: #e2e6ea;
-        }
+.square-btn {
+    width: 50px;
+    height: 50px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.4em;
+    background-color: white;
+    border: 1px solid #ddd;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: all 0.2s;
+}
 
-        .square-btn:active {
-            transform: scale(0.95);
-            /* Kattintáskor kicsit benyomódik */
-        }
+.square-btn:active {
+    transform: scale(0.9);
+}
 
-        .main-actions {
-            display: flex;
-            gap: 10px;
-            /* A gombok közötti alap távolság */
-        }
-
-        /* Külön stílus a törlés gombnak, hogy látsszon: ez romboló művelet */
-        .danger-btn {
-            border-color: #dc3545 !important;
-            color: #dc3545;
-        }
-
-        .danger-btn:hover {
-            background-color: #f8d7da !important;
-        }
-
-        #totalPrice {
-            font-weight: bold;
-            font-size: 1.5em;
-            margin: 0;
-            /* Eltüntetjük a margót, hogy ne tolja el a sor magasságát */
-        }
+.danger-btn {
+    border-color: #dc3545;
+    color: #dc3545;
+}

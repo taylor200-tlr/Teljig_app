@@ -3,38 +3,34 @@
 
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no">
-    <link rel="stylesheet" href="lib/bootstrap/css/bootstrap.min.css">
-    <link href="fontawsome/css/fontawesome.min.css" rel="stylesheet">
-    <link href="fontawsome/css/solid.min.css" rel="stylesheet">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="css/style-worksheet.css">
+    <script src="js/main.js" defer></script>
     <title>Teljesítési igazolás</title>
 </head>
 
 <body>
 
-    <h1>Mennyit kerestem ma(helyi3)</h1>
+    <h1>Mennyit kerestem ma</h1>
 
-    <div id="activitiesContainer">
+    <div id="activitiesContainer"></div>
+
+    <div class="total-container">
+        <div class="total-label">Napi összesen:</div>
+        <div id="totalPrice" class="total-amount">0 Ft</div>
     </div>
 
-    <div class="footer-container">
-    <div class="action-buttons">
-        <!-- Az első 3 gomb -->
-        <div class="main-actions">
-            <button id="saveButton" class="square-btn" title="Mentés">💾</button>
+    <div class="button-row">
+        <div class="left-buttons">
             <button id="resetButton" class="square-btn" title="Visszaállítás">🔄</button>
             <button id="statsButton" class="square-btn" title="Statisztika">📊</button>
+            <button id="exportButton" class="square-btn" title="CSV Mentés">💾</button>
         </div>
-        
-        <!-- A 4. gomb, ami távolabb van -->
-        <button id="deleteLastButton" class="square-btn danger-btn" title="Utolsó mentés törlése">🗑️</button>
+        <div class="right-buttons">
+            <button id="deleteLastButton" class="square-btn danger-btn" title="Törlés">🗑️</button>
+        </div>
     </div>
-
-    <div id="totalPrice">Összesen: 0 Ft</div>
-</div>
-
-    <script src="js/main.js"></script>
 
 </body>
 
