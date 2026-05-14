@@ -67,6 +67,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (confirm("Nullázod az aktuális tételeket?")) {
             document.querySelectorAll('.quantity').forEach(s => s.textContent = '0');
             updateTotal();
+            refreshDailyStats();
         }
     });
 
