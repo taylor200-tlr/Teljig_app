@@ -6,6 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="css/style-worksheet.css">
+    <link rel="manifest" href="/manifest.json">
     <script src="js/main.js" defer></script>
     <title>Teljesítési igazolás</title>
 </head>
@@ -29,6 +30,15 @@
         </div>
         <div class="right-buttons">
             <button id="deleteLastButton" class="square-btn danger-btn" title="Törlés">↩️</button>
+        </div>
+    </div>
+    <div id="dailySummary" class="daily-summary">
+        <h3>Mai mentések</h3>
+        <div id="dailyList">
+            <!-- Ide jönnek majd a sorok -->
+        </div>
+        <div class="daily-total">
+            <strong>Ma összesen: <span id="todayGrandTotal">0 Ft</span></strong>
         </div>
     </div>
 

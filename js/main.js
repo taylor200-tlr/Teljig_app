@@ -1,16 +1,21 @@
 document.addEventListener('DOMContentLoaded', () => {
     const activities = [
         ['LHM csere', 8500],
-        ['LHM rollout / PÜK', 12750],
+        ['LHM rollout', 12750],
         ['KMSZ csere', 2210],
-        ['Kötőelem', 2300],
-        ['HMKE / Mintavétel', 17000],
-        ['Kisablak / HA / Készülék', 5100],
+        ['Kötőelem beépítés', 2300],
+        ['Kisablak felszerelés', 5100],
         ['Tábla csere', 1700],
         ['Plombálás', 5500],
         ['Műszaki', 7200],
-        ['Kikapcsolás', 22000],
         ['Kódolt jelzés', 7225],
+        ['Készülék fel / le', 5100],
+        ['Helyszíni adategyeztetés', 5100],
+        ['HMKE', 17000],
+        ['EFIZ LHM', 12750],
+        ['Passzív Ügyfél K.', 12750],
+        ['Mintavételes mérő', 17000],
+        ['Kikapcsolás', 22000],
         ['EJKV', 12750],
         ['TJKV kicsi', 25500],
         ['TJKV nagy', 72250]
@@ -59,7 +64,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Reset funkció
     document.getElementById('resetButton').addEventListener('click', () => {
-        if (confirm("Nullázod a mai tételeket?")) {
+        if (confirm("Nullázod az aktuális tételeket?")) {
             document.querySelectorAll('.quantity').forEach(s => s.textContent = '0');
             updateTotal();
         }
@@ -98,6 +103,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 // Nullázás mentés után
                 document.querySelectorAll('.quantity').forEach(s => s.textContent = '0');
                 updateTotal();
+                refreshDailyStats(); // Frissítjük a napi statisztikát
             } else {
                 alert("❌ Szerver hiba: " + result.message);
             }
@@ -118,6 +124,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
             if (result.status === "success") {
                 alert("🗑️ " + result.message);
+                refreshDailyStats(); // Frissítjük a napi statisztikát
             } else {
                 alert("❌ Hiba: " + result.message);
             }
@@ -126,4 +133,31 @@ document.addEventListener('DOMContentLoaded', () => {
             console.error("Törlési hiba:", err);
         }
     });
+    async function refreshDailyStats() {
+        try {
+            const response = await fetch('/napi_lista.php');
+            const data = await response.json();
+
+            const listContainer = document.getElementById('dailyList');
+            const totalContainer = document.getElementById('todayGrandTotal');
+
+            let html = '';
+            let sum = 0;
+
+            data.forEach(row => {
+                html += `<div class="daily-row">
+                        <span>${row.ido}</span>
+                        <span>${parseInt(row.osszesen).toLocaleString('hu-HU')} Ft</span>
+                     </div>`;
+                sum += parseInt(row.osszesen);
+            });
+
+            listContainer.innerHTML = html || '<p style="font-size: 0.8em; color: gray;">Még nincs mai mentés.</p>';
+            totalContainer.textContent = sum.toLocaleString('hu-HU') + " Ft";
+
+        } catch (err) {
+            console.error("Hiba a statisztika frissítésekor:", err);
+        }
+    }
+    refreshDailyStats();
 });

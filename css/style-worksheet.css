@@ -91,8 +91,9 @@ h3 {
     font-weight: 800;
     color: #27ae60;
     font-family: 'Montserrat', sans-serif;
-    font-weight: 800; /* Az összeg legyen a legvastagabb */
-    font-size: 1.6rem; 
+    font-weight: 800;
+    /* Az összeg legyen a legvastagabb */
+    font-size: 1.6rem;
     color: #27ae60;
 }
 
@@ -129,4 +130,38 @@ h3 {
 .danger-btn {
     border-color: #dc3545;
     color: #dc3545;
+}
+
+.daily-summary h3 {
+    margin: 0 0 10px 0;
+    font-size: 1.1em;
+    color: #2c3e50;
+}
+
+.daily-summary {
+    margin-top: 25px;
+    background: #ffffff;
+    padding: 15px;
+    border-radius: 12px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+    border: 1px solid #eee;
+}
+
+.daily-row {
+    display: flex;
+    justify-content: space-between;
+    padding: 8px 0;
+    border-bottom: 1px solid #f0f0f0;
+    font-family: monospace;
+    /* Így a számok egymás alatt maradnak */
+    font-size: 1rem;
+}
+
+.daily-total {
+    margin-top: 12px;
+    padding-top: 10px;
+    border-top: 2px solid #3498db;
+    text-align: right;
+    font-size: 1.2rem;
+    color: #2c3e50;
 }
