@@ -241,7 +241,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const response = await fetch('/torles.php');
             const result = await response.json();
             if (result.status === "success") {
-                alert("🗑️ " + result.message);
+    //            alert("🗑️ " + result.message);
                 refreshDailyStats();
             } else {
                 alert("❌ Hiba: " + result.message);
