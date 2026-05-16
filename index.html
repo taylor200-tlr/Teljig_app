@@ -26,11 +26,16 @@
         <div class="left-buttons">
             <button id="resetButton" class="square-btn" title="Visszaállítás">🔄</button>
             <button id="statsButton" class="square-btn" title="Statisztika">📊</button>
-            <button id="exportButton" class="square-btn" title="CSV Mentés">💾</button>
         </div>
         <div class="right-buttons">
-            <button id="deleteLastButton" class="square-btn danger-btn" title="Törlés">↩️</button>
+            <button id="deleteLastButton" class="square-btn danger-btn" title="Utolsó törlése">↩️</button>
         </div>
+    </div>
+
+    <div class="save-buttons-container">
+        <button id="exportButton" class="main-save-btn">Mentés az adatbázisba</button>
+
+        <button id="updateButton" class="main-save-btn update-btn" style="display: none;">💾 Módosítás mentése</button>
     </div>
     <div id="dailySummary" class="daily-summary">
         <h3>Mai mentések</h3>
@@ -39,6 +44,16 @@
         </div>
         <div class="daily-total">
             <strong>Ma összesen: <span id="todayGrandTotal">0 Ft</span></strong>
+        </div>
+    </div>
+    <div id="bottomSheet" class="bottom-sheet">
+        <div class="bottom-sheet-overlay" onclick="closeBottomSheet()"></div>
+        <div class="bottom-sheet-content">
+            <div class="bottom-sheet-bar"></div>
+            <h4 id="sheetTitle">Művelet kiválasztása</h4>
+            <button class="sheet-btn edit-btn" onclick="handleEditClick()">✏️ Szerkesztés</button>
+            <button class="sheet-btn delete-btn" onclick="handleDeleteClick()">🗑️ Törlés</button>
+            <button class="sheet-btn cancel-btn" onclick="closeBottomSheet()">Mégse</button>
         </div>
     </div>
 
