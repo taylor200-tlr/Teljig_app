@@ -1,5 +1,6 @@
 let currentSelectedId = null;
 let currentSelectedData = null;
+const API = 'https://electroprime.hu';
 
 // Kifelé is láthatóvá tesszuke a bezárást, hogy a HTML onclick is elérje
 function closeBottomSheet() {
@@ -58,7 +59,7 @@ async function handleDeleteClick() {
     if (!confirm("Biztosan törlöd ezt a konkrét mentést?")) return;
 
     try {
-        const response = await fetch(`/torles_id.php?id=${currentSelectedId}`);
+        const response = await fetch(`${API}/torles_id.php?id=${currentSelectedId}`);
         const result = await response.json();
 
         if (result.status === "success") {
@@ -181,7 +182,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const vegosszeg = parseInt(totalPriceElement.textContent.replace(/\D/g, ''));
 
         try {
-            const response = await fetch('/mentes.php', {
+            const response = await fetch(`${API}/mentes.php`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ tetelek: adatok, osszesen: vegosszeg })
@@ -215,7 +216,7 @@ document.addEventListener('DOMContentLoaded', () => {
         };
 
         try {
-            const response = await fetch('/modositas.php', {
+            const response = await fetch(`${API}/modositas.php`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(payload)
@@ -238,7 +239,7 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('deleteLastButton').addEventListener('click', async () => {
         if (!confirm("Biztosan törlöd az UTOLSÓ mentett bejegyzést az adatbázisból?")) return;
         try {
-            const response = await fetch('/torles.php');
+            const response = await fetch(`${API}/torles.php`);
             const result = await response.json();
             if (result.status === "success") {
     //            alert("🗑️ " + result.message);
@@ -253,7 +254,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     async function refreshDailyStats() {
         try {
-            const response = await fetch('napi_lista.php?t=' + new Date().getTime());
+            const response = await fetch(`${API}/napi_lista.php?t=` + new Date().getTime());
             const data = await response.json();
             const listContainer = document.getElementById('dailyList');
             const totalContainer = document.getElementById('todayGrandTotal');
