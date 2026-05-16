@@ -189,7 +189,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const result = await response.json();
 
             if (result.status === "success") {
-                alert("✅ Adatbázisba mentve!");
+//                alert("✅ Adatbázisba mentve!");
                 resetToNormalMode();
                 refreshDailyStats();
             } else {
