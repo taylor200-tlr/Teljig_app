@@ -1,5 +1,6 @@
 let currentSelectedId = null;
 let currentSelectedData = null;
+let currentStatsReport = null;
 const API = 'https://electroprime.hu';
 
 // Kifelé is láthatóvá tesszük a bezárást, hogy a HTML onclick is elérje.
@@ -37,6 +38,22 @@ function openBottomSheet(id) {
 
 function formatCurrency(amount) {
     return parseInt(amount).toLocaleString('hu-HU') + " Ft";
+}
+
+function formatDateInput(date) {
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+}
+
+function escapeHtml(value) {
+    return String(value)
+        .replaceAll('&', '&amp;')
+        .replaceAll('<', '&lt;')
+        .replaceAll('>', '&gt;')
+        .replaceAll('"', '&quot;')
+        .replaceAll("'", '&#039;');
 }
 
 // --- SZERKESZTÉS GOMB KEZELÉSE ---
@@ -128,6 +145,16 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const container = document.getElementById('activitiesContainer');
     const totalPriceElement = document.getElementById('totalPrice');
+    const statsFromDate = document.getElementById('statsFromDate');
+    const statsToDate = document.getElementById('statsToDate');
+    const statsList = document.getElementById('statsList');
+    const loadStatsButton = document.getElementById('loadStatsButton');
+    const printStatsButton = document.getElementById('printStatsButton');
+
+    const today = new Date();
+    const firstDayOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
+    statsFromDate.value = formatDateInput(firstDayOfMonth);
+    statsToDate.value = formatDateInput(today);
 
     // Generálás
     activities.forEach(([name, price]) => {
@@ -178,33 +205,149 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    // --- STATISZTIKA GOMB KEZELÉSE ---
-    document.getElementById('statsButton').addEventListener('click', async () => {
-        openStatsSheet();
-        const statsList = document.getElementById('statsList');
+    function renderStatsReport(report) {
+        currentStatsReport = report;
+        printStatsButton.style.display = report.rows.length > 0 ? 'flex' : 'none';
+
+        if (report.rows.length === 0) {
+            statsList.innerHTML = '<p style="text-align:center; color:gray;">Nincs adat a kiválasztott időszakban.</p>';
+            return;
+        }
+
+        const rowsHtml = report.rows.map(row => `
+            <tr>
+                <td>${escapeHtml(row.munka_tipusa)}</td>
+                <td>${parseInt(row.darab).toLocaleString('hu-HU')}</td>
+                <td>${formatCurrency(row.osszesen)}</td>
+            </tr>
+        `).join('');
+
+        statsList.innerHTML = `
+            <div class="stats-period">${escapeHtml(report.from)} - ${escapeHtml(report.to)}</div>
+            <table class="stats-table">
+                <thead>
+                    <tr>
+                        <th>Munka típusa</th>
+                        <th>Darabszám</th>
+                        <th>Összesen</th>
+                    </tr>
+                </thead>
+                <tbody>${rowsHtml}</tbody>
+                <tfoot>
+                    <tr>
+                        <td>Mindösszesen</td>
+                        <td>${parseInt(report.darab_osszesen).toLocaleString('hu-HU')}</td>
+                        <td>${formatCurrency(report.vegosszeg)}</td>
+                    </tr>
+                </tfoot>
+            </table>
+        `;
+    }
+
+    async function loadStatsReport() {
+        if (!statsFromDate.value || !statsToDate.value) {
+            alert("Válaszd ki mindkét dátumot!");
+            return;
+        }
+
+        if (statsFromDate.value > statsToDate.value) {
+            alert("A kezdő dátum nem lehet későbbi, mint a záró dátum.");
+            return;
+        }
+
         statsList.innerHTML = '<p style="text-align:center;">Betöltés...</p>';
+        printStatsButton.style.display = 'none';
 
         try {
-            const response = await fetch(`${API}/php/statisztika.php`);
+            const params = new URLSearchParams({
+                from: statsFromDate.value,
+                to: statsToDate.value
+            });
+            const response = await fetch(`${API}/php/statisztika.php?${params.toString()}`);
             const data = await response.json();
 
-            let html = '';
-            if (data.length === 0) {
-                html = '<p style="text-align:center; color:gray;">Nincs még adat.</p>';
-            } else {
-                data.forEach(row => {
-                    html += `
-                        <div class="daily-row" style="padding: 12px 0;">
-                            <span>📅 ${row.nap}</span>
-                            <strong>${formatCurrency(row.napi_osszeg)}</strong>
-                        </div>`;
-                });
+            if (data.status !== "success") {
+                statsList.innerHTML = `<p style="text-align:center; color:red;">${escapeHtml(data.message || 'Hiba az adatok lekérésekor.')}</p>`;
+                return;
             }
-            statsList.innerHTML = html;
+
+            renderStatsReport(data);
         } catch (err) {
             statsList.innerHTML = '<p style="text-align:center; color:red;">Hiba az adatok lekérésekor.</p>';
         }
+    }
+
+    function printStatsReport() {
+        if (!currentStatsReport || currentStatsReport.rows.length === 0) return;
+
+        const rowsHtml = currentStatsReport.rows.map(row => `
+            <tr>
+                <td>${escapeHtml(row.munka_tipusa)}</td>
+                <td>${parseInt(row.darab).toLocaleString('hu-HU')}</td>
+                <td>${formatCurrency(row.osszesen)}</td>
+            </tr>
+        `).join('');
+
+        const printable = window.open('', '_blank');
+        if (!printable) {
+            alert("A böngésző blokkolta a PDF ablak megnyitását.");
+            return;
+        }
+
+        printable.document.write(`
+            <!DOCTYPE html>
+            <html lang="hu">
+            <head>
+                <meta charset="UTF-8">
+                <title>Statisztika ${escapeHtml(currentStatsReport.from)} - ${escapeHtml(currentStatsReport.to)}</title>
+                <style>
+                    body { font-family: Arial, sans-serif; color: #1f2933; margin: 32px; }
+                    h1 { font-size: 22px; margin: 0 0 6px; }
+                    .period { color: #52606d; margin-bottom: 24px; }
+                    table { width: 100%; border-collapse: collapse; }
+                    th, td { border: 1px solid #d9e2ec; padding: 10px; text-align: left; }
+                    th { background: #f0f4f8; }
+                    td:nth-child(2), td:nth-child(3),
+                    th:nth-child(2), th:nth-child(3) { text-align: right; }
+                    tfoot td { font-weight: 700; background: #f7fafc; }
+                </style>
+            </head>
+            <body>
+                <h1>Munka statisztika</h1>
+                <div class="period">${escapeHtml(currentStatsReport.from)} - ${escapeHtml(currentStatsReport.to)}</div>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Munka típusa</th>
+                            <th>Darabszám</th>
+                            <th>Összesen</th>
+                        </tr>
+                    </thead>
+                    <tbody>${rowsHtml}</tbody>
+                    <tfoot>
+                        <tr>
+                            <td>Mindösszesen</td>
+                            <td>${parseInt(currentStatsReport.darab_osszesen).toLocaleString('hu-HU')}</td>
+                            <td>${formatCurrency(currentStatsReport.vegosszeg)}</td>
+                        </tr>
+                    </tfoot>
+                </table>
+            </body>
+            </html>
+        `);
+        printable.document.close();
+        printable.focus();
+        printable.print();
+    }
+
+    // --- STATISZTIKA GOMB KEZELÉSE ---
+    document.getElementById('statsButton').addEventListener('click', () => {
+        openStatsSheet();
+        loadStatsReport();
     });
+
+    loadStatsButton.addEventListener('click', loadStatsReport);
+    printStatsButton.addEventListener('click', printStatsReport);
 
     function resetToNormalMode() {
         document.querySelectorAll('.quantity').forEach(s => s.textContent = '0');

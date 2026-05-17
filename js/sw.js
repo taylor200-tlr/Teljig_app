@@ -1,4 +1,4 @@
-const CACHE_NAME = 'electroprime-v2';
+const CACHE_NAME = 'electroprime-v3';
 const ASSETS = [
     '/',
     '/index.html',

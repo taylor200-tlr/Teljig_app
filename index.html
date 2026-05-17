@@ -60,12 +60,24 @@
             </div>
         </div>
 
-        <div id="statsSheet" class="bottom-sheet">
+        <div id="statsSheet" class="bottom-sheet stats-sheet">
             <div class="bottom-sheet-overlay" onclick="closeStatsSheet()"></div>
             <div class="bottom-sheet-content">
                 <div class="bottom-sheet-bar"></div>
-                <h4>Havi statisztika</h4>
-                <div id="statsList" style="max-height: 350px; overflow-y: auto; margin-bottom: 15px;"></div>
+                <h4>Statisztika</h4>
+                <div class="date-filter-row">
+                    <label>
+                        <span>Kezdő dátum</span>
+                        <input id="statsFromDate" type="date">
+                    </label>
+                    <label>
+                        <span>Záró dátum</span>
+                        <input id="statsToDate" type="date">
+                    </label>
+                </div>
+                <button id="loadStatsButton" class="sheet-btn stats-load-btn">Lekérdezés</button>
+                <div id="statsList" class="stats-list"></div>
+                <button id="printStatsButton" class="sheet-btn print-btn" type="button" style="display: none;">PDF mentése</button>
                 <button class="sheet-btn cancel-btn" onclick="closeStatsSheet()">Bezárás</button>
             </div>
         </div>
