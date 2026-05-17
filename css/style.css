@@ -1,10 +1,28 @@
+:root {
+    --primary-color: #27ae60;
+    --secondary-color: #3498db;
+    --danger-color: #e53935;
+    --warning-color: #e67e22;
+    --bg-color: #f4f7f6;
+    --text-color: #2c3e50;
+    --border-color: #ddd;
+    --white: #ffffff;
+    --shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+    --transition: all 0.2s ease;
+}
+
+* {
+    box-sizing: border-box;
+}
+
 body {
     font-family: 'Montserrat', sans-serif;
     max-width: 600px;
     margin: 0 auto;
     padding: 15px;
-    background-color: #f4f7f6;
-    color: #2c3e50;
+    background-color: var(--bg-color);
+    color: var(--text-color);
+    line-height: 1.5;
 }
 
 h1 {
@@ -13,25 +31,19 @@ h1 {
     letter-spacing: 1px;
     text-align: center;
     padding-bottom: 15px;
-    border-bottom: #27ae60 3px solid;
+    border-bottom: var(--primary-color) 3px solid;
     font-size: 1.3rem;
 }
 
-h3 {
-    font-weight: 400;
-    font-size: 1rem;
-    margin: 0;
-}
-
 .activity {
-    background: white;
+    background: var(--white);
     margin-bottom: 5px;
     padding: 12px;
     display: flex;
     align-items: center;
     justify-content: space-between;
     border-radius: 8px;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+    box-shadow: var(--shadow);
 }
 
 .controls {
@@ -45,10 +57,15 @@ h3 {
     width: 35px;
     height: 35px;
     cursor: pointer;
-    background-color: #f44336;
-    color: white;
+    background-color: var(--danger-color);
+    color: var(--white);
     border: none;
     border-radius: 5px;
+    transition: var(--transition);
+}
+
+.controls button:active {
+    transform: scale(0.9);
 }
 
 .quantity {
@@ -62,12 +79,12 @@ h3 {
 .total-container {
     margin: 20px 0;
     padding: 15px;
-    background: #fff;
+    background: var(--white);
     border-radius: 10px;
     display: flex;
     justify-content: space-between;
     align-items: center;
-    border: 2px solid #27ae60;
+    border: 2px solid var(--primary-color);
 }
 
 .total-label {
@@ -81,7 +98,7 @@ h3 {
     font-family: 'Montserrat', sans-serif;
     font-weight: 800;
     font-size: 1.6rem;
-    color: #27ae60;
+    color: var(--primary-color);
 }
 
 .button-row {
@@ -102,7 +119,7 @@ h3 {
     align-items: center;
     justify-content: center;
     font-size: 1.4em;
-    background-color: white;
+    background-color: var(--white);
     border: 1px solid #ddd;
     border-radius: 10px;
     cursor: pointer;
@@ -114,13 +131,13 @@ h3 {
 }
 
 .danger-btn {
-    border-color: #dc3545;
-    color: #dc3545;
+    border-color: var(--danger-color);
+    color: var(--danger-color);
 }
 
 .daily-summary {
     margin-top: 25px;
-    background: #ffffff;
+    background: var(--white);
     padding: 15px;
     border-radius: 12px;
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);

@@ -13,24 +13,27 @@
 
 <body>
 
-    <h1>Mennyit kerestem ma</h1>
+    <header>
+        <h1>Mennyit kerestem ma</h1>
+    </header>
 
-    <div id="activitiesContainer"></div>
+    <main id="activitiesContainer"></main>
 
-    <div class="total-container">
-        <div class="total-label">Napi összesen:</div>
-        <div id="totalPrice" class="total-amount">0 Ft</div>
-    </div>
-
-    <div class="button-row">
-        <div class="left-buttons">
-            <button id="resetButton" class="square-btn" title="Visszaállítás">🔄</button>
-            <button id="statsButton" class="square-btn" title="Statisztika">📊</button>
+    <section class="summary-section">
+        <div class="total-container">
+            <div class="total-label">Napi összesen:</div>
+            <div id="totalPrice" class="total-amount">0 Ft</div>
         </div>
-        <div class="right-buttons">
-            <button id="deleteLastButton" class="square-btn danger-btn" title="Utolsó törlése">↩️</button>
+
+        <div class="button-row">
+            <div class="left-buttons">
+                <button id="resetButton" class="square-btn" title="Visszaállítás">🔄</button>
+                <button id="statsButton" class="square-btn" title="Statisztika">📊</button>
+            </div>
+            <div class="right-buttons">
+                <button id="deleteLastButton" class="square-btn danger-btn" title="Utolsó törlése">↩️</button>
+            </div>
         </div>
-    </div>
 
     <div class="save-buttons-container">
         <button id="exportButton" class="main-save-btn">Mentés az adatbázisba</button>
@@ -54,6 +57,16 @@
             <button class="sheet-btn edit-btn" onclick="handleEditClick()">✏️ Szerkesztés</button>
             <button class="sheet-btn delete-btn" onclick="handleDeleteClick()">🗑️ Törlés</button>
             <button class="sheet-btn cancel-btn" onclick="closeBottomSheet()">Mégse</button>
+        </div>
+    </div>
+
+    <div id="statsSheet" class="bottom-sheet">
+        <div class="bottom-sheet-overlay" onclick="closeStatsSheet()"></div>
+        <div class="bottom-sheet-content">
+            <div class="bottom-sheet-bar"></div>
+            <h4>Havi statisztika</h4>
+            <div id="statsList" style="max-height: 350px; overflow-y: auto; margin-bottom: 15px;"></div>
+            <button class="sheet-btn cancel-btn" onclick="closeStatsSheet()">Bezárás</button>
         </div>
     </div>
 

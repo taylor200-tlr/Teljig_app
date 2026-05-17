@@ -9,45 +9,64 @@ function closeBottomSheet() {
     currentSelectedData = null;
 }
 
+function closeStatsSheet() {
+    document.getElementById('statsSheet').classList.remove('open');
+}
+
+window.closeStatsSheet = closeStatsSheet;
+
+function openStatsSheet() {
+    document.getElementById('statsSheet').classList.add('open');
+}
+
 // Kifelé láthatóvá tesszük a megnyitást is
 function openBottomSheet(id) {
     currentSelectedId = id;
     window.elmentettSzerkesztoId = id;
     const talalat = window.currentDailyMunkak.find(item => item.id == id);
     if (talalat) {
-        currentSelectedData = JSON.parse(talalat.adatok_json);
+        try {
+            currentSelectedData = JSON.parse(talalat.adatok_json);
+        } catch (e) {
+            console.error("JSON parsing hiba:", e);
+        }
         document.getElementById('sheetTitle').textContent = `${talalat.ido}-kori mentés`;
         document.getElementById('bottomSheet').classList.add('open');
     }
+}
+
+function formatCurrency(amount) {
+    return parseInt(amount).toLocaleString('hu-HU') + " Ft";
 }
 
 // --- SZERKESZTÉS GOMB KEZELÉSE ---
 function handleEditClick() {
     if (!currentSelectedData) return;
 
-    // 1. Minden számlálót ledfaultolunk nullára
-    document.querySelectorAll('.activity').forEach(div => {
+    // 1. Gyűjtsük össze az összes tevékenység elemet egyszer
+    const activityElements = document.querySelectorAll('.activity');
+
+    // 2. Minden számlálót nullázunk
+    activityElements.forEach(div => {
         div.querySelector('.quantity').textContent = '0';
     });
 
-    // 2. Visszatöltjük a mentett mennyiségeket az appba
+    // 3. Visszatöltjük a mentett mennyiségeket hatékonyabban
     currentSelectedData.forEach(mentettTetel => {
-        document.querySelectorAll('.activity').forEach(div => {
-            const nev = div.querySelector('h3').textContent;
-            if (nev === mentettTetel.nev) {
-                div.querySelector('.quantity').textContent = mentettTetel.db;
-            }
-        });
+        const targetActivity = Array.from(activityElements).find(div => div.dataset.name === mentettTetel.nev);
+        if (targetActivity) {
+            targetActivity.querySelector('.quantity').textContent = mentettTetel.db;
+        }
     });
 
-    // 3. Újraszámoljuk a főoldali végösszeget
+    // 4. Újraszámoljuk a főoldali végösszeget
     window.triggerUpdateTotal();
 
-    // 4. GOMBOK CSERÉJE: Sima elrejt, Módosítás megmutat
+    // 5. GOMBOK CSERÉJE: Sima elrejt, Módosítás megmutat
     document.getElementById('exportButton').style.display = 'none';
     document.getElementById('updateButton').style.display = 'block';
 
-    // 5. Bezárjuk az alsó menüt
+    // 6. Bezárjuk az alsó menüt
     closeBottomSheet();
 
     alert("✏️ Adatok visszatöltve! Módosítsd a mennyiségeket, majd nyomj a 'Módosítás mentése' gombra.");
@@ -76,6 +95,15 @@ async function handleDeleteClick() {
 }
 
 document.addEventListener('DOMContentLoaded', () => {
+    // --- SERVICE WORKER REGISZTRÁCIÓ (OFFLINE MÓD) ---
+    if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+            navigator.serviceWorker.register('/sw.js')
+                .then(reg => console.log('Service Worker aktív!'))
+                .catch(err => console.log('SW hiba:', err));
+        });
+    }
+
     const activities = [
         ['LHM csere', 8500],
         ['LHM rollout', 12750],
@@ -106,6 +134,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const div = document.createElement('div');
         div.className = 'activity';
         div.dataset.price = price;
+        div.dataset.name = name;
         div.innerHTML = `
             <h3>${name}</h3>
             <div class="controls">
@@ -133,17 +162,47 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function updateTotal() {
         let total = 0;
-        document.querySelectorAll('.activity').forEach(div => {
-            total += parseInt(div.dataset.price) * parseInt(div.querySelector('.quantity').textContent);
+        const activityDivs = container.querySelectorAll('.activity');
+        activityDivs.forEach(div => {
+            const price = parseInt(div.dataset.price);
+            const qty = parseInt(div.querySelector('.quantity').textContent);
+            total += price * qty;
         });
-        totalPriceElement.textContent = total.toLocaleString('hu-HU') + " Ft";
+        totalPriceElement.textContent = formatCurrency(total);
     }
     window.triggerUpdateTotal = updateTotal;
 
-    // Reset funkció
     document.getElementById('resetButton').addEventListener('click', () => {
         if (confirm("Nullázod az aktuális tételeket?")) {
             resetToNormalMode();
+        }
+    });
+
+    // --- STATISZTIKA GOMB KEZELÉSE ---
+    document.getElementById('statsButton').addEventListener('click', async () => {
+        openStatsSheet();
+        const statsList = document.getElementById('statsList');
+        statsList.innerHTML = '<p style="text-align:center;">Betöltés...</p>';
+
+        try {
+            const response = await fetch(`${API}/statisztika.php`);
+            const data = await response.json();
+
+            let html = '';
+            if (data.length === 0) {
+                html = '<p style="text-align:center; color:gray;">Nincs még adat.</p>';
+            } else {
+                data.forEach(row => {
+                    html += `
+                        <div class="daily-row" style="padding: 12px 0;">
+                            <span>📅 ${row.nap}</span>
+                            <strong>${formatCurrency(row.napi_osszeg)}</strong>
+                        </div>`;
+                });
+            }
+            statsList.innerHTML = html;
+        } catch (err) {
+            statsList.innerHTML = '<p style="text-align:center; color:red;">Hiba az adatok lekérésekor.</p>';
         }
     });
 
@@ -166,7 +225,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const mennyiseg = parseInt(div.querySelector('.quantity').textContent);
             if (mennyiseg > 0) {
                 adatok.push({
-                    nev: div.querySelector('h3').textContent,
+                    nev: div.dataset.name,
                     db: mennyiseg
                 });
             }
@@ -218,13 +277,13 @@ document.addEventListener('DOMContentLoaded', () => {
         try {
             const response = await fetch(`${API}/modositas.php`, {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
+                headers: { 'Content-Type': 'application/json; charset=UTF-8' },
                 body: JSON.stringify(payload)
             });
             const result = await response.json();
 
             if (result.status === "success") {
-                alert("✏️ Sikeresen módosítva!");
+ //               alert("✏️ Sikeresen módosítva!");
                 resetToNormalMode();
                 refreshDailyStats();
             } else {
@@ -266,13 +325,13 @@ document.addEventListener('DOMContentLoaded', () => {
             data.forEach(row => {
                 html += `<div class="daily-row" onclick="openBottomSheet(${row.id})" style="cursor:pointer;">
                             <span>🕒 ${row.ido}</span>
-                            <strong>${parseInt(row.osszesen).toLocaleString('hu-HU')} Ft</strong>
+                            <strong>${formatCurrency(row.osszesen)}</strong>
                          </div>`;
                 sum += parseInt(row.osszesen);
             });
 
             listContainer.innerHTML = html || '<p style="font-size: 0.8em; color: gray; text-align:center;">Még nincs mai mentés.</p>';
-            totalContainer.textContent = sum.toLocaleString('hu-HU') + " Ft";
+            totalContainer.textContent = formatCurrency(sum);
         } catch (err) {
             console.error("Hiba a statisztika frissítésekor:", err);
         }
