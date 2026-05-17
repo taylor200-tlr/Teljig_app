@@ -2,7 +2,7 @@ let currentSelectedId = null;
 let currentSelectedData = null;
 const API = 'https://electroprime.hu';
 
-// Kifelé is láthatóvá tesszuke a bezárást, hogy a HTML onclick is elérje
+// Kifelé is láthatóvá tesszük a bezárást, hogy a HTML onclick is elérje.
 function closeBottomSheet() {
     document.getElementById('bottomSheet').classList.remove('open');
     currentSelectedId = null;
@@ -19,7 +19,7 @@ function openStatsSheet() {
     document.getElementById('statsSheet').classList.add('open');
 }
 
-// Kifelé láthatóvá tesszük a megnyitást is
+// Kifelé láthatóvá tesszük a megnyitást is.
 function openBottomSheet(id) {
     currentSelectedId = id;
     window.elmentettSzerkesztoId = id;
@@ -43,15 +43,15 @@ function formatCurrency(amount) {
 function handleEditClick() {
     if (!currentSelectedData) return;
 
-    // 1. Gyűjtsük össze az összes tevékenység elemet egyszer
+    // 1. Gyűjtsük össze az összes tevékenység elemet egyszer.
     const activityElements = document.querySelectorAll('.activity');
 
-    // 2. Minden számlálót nullázunk
+    // 2. Minden számlálót nullázunk.
     activityElements.forEach(div => {
         div.querySelector('.quantity').textContent = '0';
     });
 
-    // 3. Visszatöltjük a mentett mennyiségeket hatékonyabban
+    // 3. Visszatöltjük a mentett mennyiségeket hatékonyabban.
     currentSelectedData.forEach(mentettTetel => {
         const targetActivity = Array.from(activityElements).find(div => div.dataset.name === mentettTetel.nev);
         if (targetActivity) {
@@ -59,14 +59,14 @@ function handleEditClick() {
         }
     });
 
-    // 4. Újraszámoljuk a főoldali végösszeget
+    // 4. Újraszámoljuk a főoldali végösszeget.
     window.triggerUpdateTotal();
 
-    // 5. GOMBOK CSERÉJE: Sima elrejt, Módosítás megmutat
+    // 5. Gombok cseréje: sima elrejt, módosítás megmutat.
     document.getElementById('exportButton').style.display = 'none';
     document.getElementById('updateButton').style.display = 'block';
 
-    // 6. Bezárjuk az alsó menüt
+    // 6. Bezárjuk az alsó menüt.
     closeBottomSheet();
 
     alert("✏️ Adatok visszatöltve! Módosítsd a mennyiségeket, majd nyomj a 'Módosítás mentése' gombra.");
@@ -78,7 +78,7 @@ async function handleDeleteClick() {
     if (!confirm("Biztosan törlöd ezt a konkrét mentést?")) return;
 
     try {
-        const response = await fetch(`${API}/torles_id.php?id=${currentSelectedId}`);
+        const response = await fetch(`${API}/php/torles_id.php?id=${currentSelectedId}`);
         const result = await response.json();
 
         if (result.status === "success") {
@@ -185,7 +185,7 @@ document.addEventListener('DOMContentLoaded', () => {
         statsList.innerHTML = '<p style="text-align:center;">Betöltés...</p>';
 
         try {
-            const response = await fetch(`${API}/statisztika.php`);
+            const response = await fetch(`${API}/php/statisztika.php`);
             const data = await response.json();
 
             let html = '';
@@ -241,7 +241,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const vegosszeg = parseInt(totalPriceElement.textContent.replace(/\D/g, ''));
 
         try {
-            const response = await fetch(`${API}/mentes.php`, {
+            const response = await fetch(`${API}/php/mentes.php`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ tetelek: adatok, osszesen: vegosszeg })
@@ -249,7 +249,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const result = await response.json();
 
             if (result.status === "success") {
-//                alert("✅ Adatbázisba mentve!");
+                // alert("✅ Adatbázisba mentve!");
                 resetToNormalMode();
                 refreshDailyStats();
             } else {
@@ -265,17 +265,17 @@ document.addEventListener('DOMContentLoaded', () => {
         const adatok = getAktualisAdatok();
         const vegosszeg = parseInt(totalPriceElement.textContent.replace(/\D/g, ''));
 
-        // Itt a trükk: ha a sima változó null, megpróbáljuk a window-ból kiszedni
+        // Itt a trükk: ha a sima változó null, megpróbáljuk a window-ból kiszedni.
         const veglegesId = currentSelectedId || window.elmentettSzerkesztoId;
 
         const payload = {
-            id: veglegesId, // Ezt küldjük el a PHP-nak
+            id: veglegesId,
             tetelek: adatok,
             osszesen: vegosszeg
         };
 
         try {
-            const response = await fetch(`${API}/modositas.php`, {
+            const response = await fetch(`${API}/php/modositas.php`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json; charset=UTF-8' },
                 body: JSON.stringify(payload)
@@ -283,7 +283,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const result = await response.json();
 
             if (result.status === "success") {
- //               alert("✏️ Sikeresen módosítva!");
+                // alert("✏️ Sikeresen módosítva!");
                 resetToNormalMode();
                 refreshDailyStats();
             } else {
@@ -298,10 +298,10 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('deleteLastButton').addEventListener('click', async () => {
         if (!confirm("Biztosan törlöd az UTOLSÓ mentett bejegyzést az adatbázisból?")) return;
         try {
-            const response = await fetch(`${API}/torles.php`);
+            const response = await fetch(`${API}/php/torles.php`);
             const result = await response.json();
             if (result.status === "success") {
-    //            alert("🗑️ " + result.message);
+                // alert("🗑️ " + result.message);
                 refreshDailyStats();
             } else {
                 alert("❌ Hiba: " + result.message);
@@ -313,7 +313,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     async function refreshDailyStats() {
         try {
-            const response = await fetch(`${API}/napi_lista.php?t=` + new Date().getTime());
+            const response = await fetch(`${API}/php/napi_lista.php?t=` + new Date().getTime());
             const data = await response.json();
             const listContainer = document.getElementById('dailyList');
             const totalContainer = document.getElementById('todayGrandTotal');
